@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     Runnable runnable;
     Handler handler = new Handler();
     int gameTicks, endingScore;
-    boolean started;
+    boolean started, doOnce;
 
     final static int SETTINGS_RESULT = 1;
     final static int LOGIN_RESULT = 2;
@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView scoreView = findViewById(R.id.current_score_text);
                 scoreView.setText("SCORE: 0");
                 final GameView gameView = findViewById(R.id.gameBoard);
+                doOnce = true;
                 gameBackend = new GameBackend(gameView, getApplicationContext());
             }
         });
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 setupMainScreen();
             }
         });
-
+        doOnce = true;
         // Setup game timer
         runnable = new Runnable() {
             @Override
@@ -132,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     gameOverScreen.setVisibility(View.VISIBLE);
                     endingScore = gameBackend.getScore();
+                    if (doOnce) {
+                        scoreDb.insertScoreOnly(endingScore);
+                        doOnce = false;
+                    }
                     // TODO: Handle updating scores everytime
                 }
                 gameBackend.drawGraphics();

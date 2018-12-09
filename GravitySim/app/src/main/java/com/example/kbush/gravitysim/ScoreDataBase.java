@@ -136,6 +136,19 @@ class ScoreDataBase {
         highScoreView.setAdapter(theAdaptor);
     }
 
+
+    void insertScoreOnly(int score) {
+        HighScoreReference result = new HighScoreReference(uid, (score + ""));
+        int index = topScoreList.size();
+        if (index > 0 && score > topScoreList.get(index - 1).getScore()) {
+            while (index > 0 && score > topScoreList.get(index - 1).getScore()) {
+                index--;
+            }
+            topScoreList.add(index, result);
+            topScoreList.remove(topScoreList.size() - 1);
+        }
+    }
+
     // Sets the highscore list on the database
     private void setNewListData() {
         Map<String, Object> userData = new HashMap<>();
