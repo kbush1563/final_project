@@ -33,18 +33,20 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         Bundle b = getIntent().getExtras();
-        boolean logout = false;
-        if (b != null) logout = b.getBoolean("logout");
-        if (logout) {
-            currentUser = null;
-        } else {
-            // Login user
-            currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                returnName = currentUser.getDisplayName();
-                exitActivity();
-            }
+        if (b != null && b.getBoolean("logout")) {
+            mAuth.signOut();
         }
+        // Login user
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            returnName = currentUser.getDisplayName();
+            exitActivity();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Do nothing
     }
 
     // Initializes the signup button

@@ -66,6 +66,7 @@ class GameBackend {
         sfxShipExplode = sfx.load(context, R.raw.ship_explode,1);
     }
 
+    // TODO: Add best user score text
 
     // GAME UPDATE FUNCTIONS #######################################################################
 

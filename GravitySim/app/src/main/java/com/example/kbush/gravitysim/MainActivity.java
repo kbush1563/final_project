@@ -52,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
         scoreDb = new ScoreDataBase(userId);
         Settings.pullUserSettings();
         setupMainScreen();
-        TextView userScore = findViewById(R.id.user_highscore_text);
-        scoreDb.getUserScore(userScore);
+        //scoreDb.getUserScore(userScore);
         ListView highScoreView = findViewById(R.id.list_view);
         scoreDb.pullTopScores(highScoreView, getApplicationContext());
     }
@@ -67,8 +66,7 @@ public class MainActivity extends AppCompatActivity {
         new StarsBackground(background, getApplicationContext());
 
         // Set potential new high score
-        TextView userScore = findViewById(R.id.user_highscore_text);
-        scoreDb.updateUserScore(userScore, endingScore);
+        //scoreDb.updateUserScore(userScore, endingScore);
         ListView highScoreView = findViewById(R.id.list_view);
         scoreDb.insertNewHighScore(endingScore, getApplicationContext(), highScoreView);
 
@@ -134,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     gameOverScreen.setVisibility(View.VISIBLE);
                     endingScore = gameBackend.getScore();
+                    // TODO: Handle updating scores everytime
                 }
                 gameBackend.drawGraphics();
                 if (started) start();
