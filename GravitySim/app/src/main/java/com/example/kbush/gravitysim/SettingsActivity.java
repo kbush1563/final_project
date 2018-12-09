@@ -2,43 +2,41 @@ package com.example.kbush.gravitysim;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
-
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class SettingsActivity extends AppCompatActivity {
-    FirebaseFirestore database;
-    String uid;
-    StarsBackground starBg;
+    private StarsBackground starBg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        Intent i = getIntent();
-        Bundle b = i.getExtras();
-        uid = b.getString("uid");
-
         // Initialize variables
         GameView starsBackground = findViewById(R.id.settings_stars);
         starBg = new StarsBackground(starsBackground, getApplicationContext());
-        database = FirebaseFirestore.getInstance();
 
         // Initialize buttons
         initializeBackButton();
         initializeLogoutButton();
+
+        // Initialize Check Box Values
+        CheckBox sfx = findViewById(R.id.cb_sfx_off);
+        CheckBox music = findViewById(R.id.cb_music_off);
+        sfx.setChecked(Settings.sfxOff);
+        music.setChecked(Settings.musicOff);
+    }
+
+    @Override
+    public void onBackPressed() {
+        exitActivity(false);
     }
 
     // Initializes the back button
@@ -65,30 +63,21 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Exits the activity
     void exitActivity(boolean shouldLogout) {
+        // Update user settings
+        Map<String, Object> userData = new HashMap<>();
+        CheckBox sfx = findViewById(R.id.cb_sfx_off);
+        CheckBox music = findViewById(R.id.cb_music_off);
+        userData.put("sfxOff", sfx.isChecked());
+        userData.put("musicOff", music.isChecked());
+        Settings.setUserSettings(userData);
+        // Kill background
+        starBg.kill();
+        // Create return data package
+        Intent returnData = new Intent();
         Bundle b = new Bundle();
         b.putBoolean("logout", shouldLogout);
-        Map<String, Object> settings = updateUserSettings();
-        Intent exitData = new Intent();
-        exitData.putExtras(b);
-
-        starBg.kill();
-        setResult(RESULT_OK, exitData);
+        returnData.putExtras(b);
+        setResult(RESULT_OK, returnData);
         finish();
     }
-
-
-    // Looks through all of the settings options and then updates them on the database
-    Map<String, Object> updateUserSettings() {
-        Map<String, Object> userData = new HashMap<>();
-        // Sfx settings
-        CheckBox sfx = findViewById(R.id.cb_sfx_off);
-        userData.put("sfxOff", sfx.isChecked());
-        // Music settings
-        CheckBox music = findViewById(R.id.cb_music_off);
-        userData.put("musicOff", music.isChecked());
-
-        database.collection("users").document(uid).set(userData, SetOptions.merge());
-        return userData;
-    }
-
 }

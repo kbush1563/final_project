@@ -17,15 +17,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteY="0dp" />
 
-    <ImageButton
-        android:id="@+id/music_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@null"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_music_on" />
-
     <TextView
         android:id="@+id/current_score_text"
         android:layout_width="wrap_content"

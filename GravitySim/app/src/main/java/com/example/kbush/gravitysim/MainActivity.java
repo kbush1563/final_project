@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 // ICON CREDIT
 // https://www.freepik.com" title="Freepik
 // https://www.flaticon.com/authors/roundicons
@@ -32,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     final static int SETTINGS_RESULT = 1;
     final static int LOGIN_RESULT = 2;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     // Used for initializing the main screen for the first time
     public void initializeMainScreen() {
         scoreDb = new ScoreDataBase(userId);
+        Settings.pullUserSettings();
         setupMainScreen();
         TextView userScore = findViewById(R.id.user_highscore_text);
         scoreDb.getUserScore(userScore);
@@ -63,8 +62,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initializeSettingsButton();
 
+        // Initialize background
         GameView background = findViewById(R.id.background_main);
-        StarsBackground starsBg = new StarsBackground(background, getApplicationContext());
+        new StarsBackground(background, getApplicationContext());
 
         // Set potential new high score
         TextView userScore = findViewById(R.id.user_highscore_text);
@@ -95,13 +95,11 @@ public class MainActivity extends AppCompatActivity {
         final Button replay = findViewById(R.id.restart_button);
         final Button mainMenu = findViewById(R.id.main_menu_button);
         final LinearLayout gameOverScreen = findViewById(R.id.game_over_layout);
-        final ImageButton music = findViewById(R.id.music_button);
         gameTicks = 0;
 
         replay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                music.setVisibility(View.VISIBLE);
                 gameOverScreen.setVisibility(View.GONE);
                 TextView scoreView = findViewById(R.id.current_score_text);
                 scoreView.setText("SCORE: 0");
@@ -114,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 stop();
+                gameBackend.killBackgroundSong();
                 setupMainScreen();
             }
         });
@@ -134,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     gameOverScreen.setVisibility(View.VISIBLE);
-                    music.setVisibility(View.GONE);
                     endingScore = gameBackend.getScore();
                 }
                 gameBackend.drawGraphics();
@@ -142,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        initiateMusicButton();
         start();
     }
 
@@ -156,19 +153,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    // Starts up the settings activity
     void startSettingsActivity() {
-        Intent theGame = new Intent(this, SettingsActivity.class);
-        Bundle b = new Bundle();
-        // TODO: Put stars settings?
-        b.putString("uid", userId);
-        theGame.putExtras(b);
-        startActivityForResult(theGame, SETTINGS_RESULT);
+        Intent startData = new Intent(this, SettingsActivity.class);
+        startActivityForResult(startData, SETTINGS_RESULT);
     }
 
+    // Starts up the login activity
     void startLoginActivity(boolean logout) {
         Intent startData = new Intent(this, LoginActivity.class);
         Bundle b = new Bundle();
-        // TODO: Put stars settings?
         b.putBoolean("logout", logout);
         startData.putExtras(b);
         startActivityForResult(startData, LOGIN_RESULT);
@@ -184,23 +179,15 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case LOGIN_RESULT:
                     extras = data.getExtras();
-                    if (extras != null) userId = extras.getString("user_id");
+                    if (extras != null) {
+                        userId = extras.getString("user_id");
+                        Settings.uid = userId;
+                    }
                     print("Welcome " + userId);
                     initializeMainScreen();
                     break;
             }
         }
-    }
-
-    // Initializes the music button
-    void initiateMusicButton() {
-        final ImageButton music = findViewById(R.id.music_button);
-        music.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gameBackend.toggleMusic(music);
-            }
-        });
     }
 
     // When the user touches the screen, if they tap on the space ship it will fire a bullet,

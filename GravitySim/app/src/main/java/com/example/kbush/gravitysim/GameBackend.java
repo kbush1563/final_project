@@ -2,30 +2,32 @@ package com.example.kbush.gravitysim;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.widget.ImageButton;
+import android.media.SoundPool;
 import android.widget.TextView;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class GameBackend {
+class GameBackend {
     Context context;
 
     private GameView graphics;
     private SpaceShip player;
     private Weapon weapon;
-    // Seprate object list to improve efficiency
+    // Separate object list to improve efficiency
     private LinkedList<PhysicalObject> octos, bullets, stars, rocks, gibs;
 
     private MediaPlayer bgSong;
-    // TODO: SoundEngine sfx;
+    private SoundPool sfx;
 
     private int score, currentScore, spawnRate;
-    private boolean bgSongOn, sfxOn, gameOver;
+    private int sfxDeadOcto, sfxGunshot, sfxOctoHit, sfxRockHit, sfxShipExplode;
+    private boolean sfxOn, gameOver;
 
     private final static int NUMBER_OF_STARS = 10;
-    private final static int INITIAL_SPAWN_RATE = 100; // In ms
+    private final static int INITIAL_SPAWN_RATE = 50; // In ms
     private final static int OCTO_POINT_VALUE = 10;
     private final static int ROCK_POINT_VALUE = 20;
     private final static int TOUCH_FIRE_RADIUS = 500;
@@ -52,20 +54,23 @@ public class GameBackend {
         score = 0;
         currentScore = 0;
         spawnRate = INITIAL_SPAWN_RATE;
-        bgSongOn = false;
-        sfxOn = false;
         gameOver = false;
 
-        // Begin playing background music
-        bgSong = MediaPlayer.create(context, R.raw.super_dramatic);
-        bgSong.setLooping(true);
+        invalidateSoundSettings();
+
+        sfx = new SoundPool(100, AudioManager.USE_DEFAULT_STREAM_TYPE, 0);
+        sfxGunshot = sfx.load(context, R.raw.gunshot, 1);
+        sfxDeadOcto = sfx.load(context, R.raw.dead_octo_1, 1);
+        sfxOctoHit = sfx.load(context, R.raw.octo_hit_1, 1);
+        sfxRockHit = sfx.load(context, R.raw.rock_hit_1, 1);
+        sfxShipExplode = sfx.load(context, R.raw.ship_explode,1);
     }
 
 
     // GAME UPDATE FUNCTIONS #######################################################################
 
     // Updates and runs collision physics for all objects
-    public boolean updateObjects() {
+    boolean updateObjects() {
         // Update Stars
         for (PhysicalObject star: stars) {
             if (star.update()) star.setPosition(-123456, 0);
@@ -85,11 +90,13 @@ public class GameBackend {
                     destroyObject(Type.DEAD, current.getLoc(), 6);
                     score += OCTO_POINT_VALUE;
                     isDead = true;
+                    playSfx(sfxDeadOcto);
                     break;
                 }
             }
             if (!isDead && current.isOverProjectile(player)) {
                 player.damage(Type.OCTO);
+                //playSfx(sfxOctoHit);
             }
             if (gameOver) {
                 octoItter.remove();
@@ -112,6 +119,7 @@ public class GameBackend {
                         destroyObject(Type.ROCK_GIB, current.getLoc(), 4);
                         score += ROCK_POINT_VALUE;
                         isDead = true;
+                        playSfx(sfxRockHit);
                         break;
                     }
                 }
@@ -120,6 +128,7 @@ public class GameBackend {
                 player.damage(Type.ASTEROID);
                 destroyObject(Type.SHIP_GIB, current.getLoc(), 10);
                 destroyObject(Type.ROCK_GIB, current.getLoc(), 4);
+                playSfx(sfxRockHit);
                 rockItter.remove();
             }
             if (gameOver) {
@@ -141,12 +150,14 @@ public class GameBackend {
         player.update();
         if (!player.isAlive() && !gameOver) {
             destroyObject(Type.SHIP_GIB, player.getLoc(), 200);
+            playSfx(sfxShipExplode);
             gameOver = true;
         }
         return player.isAlive();
     }
 
-    void destroyObject(Type t, Point loc, int amt) {
+    // Explodes an object into the number of gibs of it's type
+    private void destroyObject(Type t, Point loc, int amt) {
         for (int i = 0; i < amt; i++) {
             Projectile gib = new Projectile(loc, 0, 0, context, t);
             gib.setRandomXVel(-20, 20);
@@ -156,10 +167,12 @@ public class GameBackend {
 
     }
 
+    // Updates the score text one point at a time
     void updateScoreView(TextView scoreView) {
         if (currentScore < score) {
             currentScore++;
-            scoreView.setText("SCORE: " + currentScore);
+            String scoreViewText = "SCORE: " + currentScore;
+            scoreView.setText(scoreViewText);
         }
     }
 
@@ -170,7 +183,7 @@ public class GameBackend {
         objects.addAll(bullets);
         objects.addAll(rocks);
         objects.addAll(gibs);
-        player.setCurrentRounds(weapon.currentRounds);
+        player.setCurrentRounds(weapon.getCurrentRounds());
         if (!gameOver) graphics.setObjects(objects, player);
         else graphics.setObjects(objects, null);
         graphics.invalidate();
@@ -209,7 +222,7 @@ public class GameBackend {
             Projectile bullet = weapon.fire(shipLoc);
             if (bullet != null) {
                 bullets.add(bullet);
-                //TODO: sfx.soundInstance(weapon.getType());
+                playSfx(sfxGunshot);
             }
         }
     }
@@ -231,16 +244,22 @@ public class GameBackend {
 
     // SOUND FUNCTIONS #############################################################################
 
-    // Toggles the background music on or off and sets the music icon
-    void toggleMusic(ImageButton musicIC) {
-        if (bgSongOn) {
-            musicIC.setImageResource(R.drawable.ic_volume_off_black_24dp);
-            bgSong.pause();
-            bgSongOn = false;
-        } else {
-            musicIC.setImageResource(R.drawable.ic_music_on);
+    // Toggles the sound settings based on the global settings class
+    private void invalidateSoundSettings() {
+        if (!Settings.musicOff) {
+            bgSong = MediaPlayer.create(context, R.raw.super_dramatic);
+            bgSong.setLooping(true);
             bgSong.start();
-            bgSongOn = true;
-        }
+        } else killBackgroundSong(); //TODO: Fix background song
+        sfxOn = !Settings.sfxOff;
+    }
+
+    void killBackgroundSong() {
+        if (bgSong != null) bgSong.stop();
+    }
+
+    private void playSfx(int sfxId) {
+        int volume = 1;
+        if (sfxOn) sfx.play(sfxId, volume, volume, 0, 0, 1);
     }
 }

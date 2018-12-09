@@ -7,16 +7,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 
-public class SpaceShip extends PhysicalObject {
-    private int speed, currentRounds, health;
+class SpaceShip extends PhysicalObject {
+    private int currentRounds, health;
     private Point lastLoc;
 
-    private final static int INITIAL_SPEED = 20;
-    private final static int INITIAL_HEALTH = 1000;
-
-    SpaceShip(int x, int y, int x2, int y2, Bitmap img, Context c) {
-        super(x, y, x2, y2, img, c);
-        constructorHelper();
+    // Initialize class constants
+    private final static int INITIAL_SPEED;
+    private final static int INITIAL_HEALTH;
+    static {
+        INITIAL_SPEED = 20;
+        INITIAL_HEALTH = 1000;
     }
 
     SpaceShip(int x, int y, Context c) {
@@ -26,8 +26,7 @@ public class SpaceShip extends PhysicalObject {
         constructorHelper();
     }
 
-    void constructorHelper() {
-        speed = 1;
+    private void constructorHelper() {
         lastLoc = new Point(getX(), getY());
         health = INITIAL_HEALTH;
     }
@@ -38,7 +37,6 @@ public class SpaceShip extends PhysicalObject {
 
     @Override
     boolean update() {
-
         int xMod = getX();
         int yMod = getY();
         if (Math.abs(lastLoc.x - getCenteredX()) > getxVel()) {
@@ -55,7 +53,7 @@ public class SpaceShip extends PhysicalObject {
     }
 
     // Damages the players ship
-    boolean damage(Type t) {
+    void damage(Type t) {
         switch (t) {
             case OCTO:
                 health -= 1;
@@ -65,7 +63,6 @@ public class SpaceShip extends PhysicalObject {
                 break;
         }
         if (health < 0) health = 0;
-        return health == 0;
     }
 
     boolean isAlive() {return health > 0;}
@@ -79,15 +76,16 @@ public class SpaceShip extends PhysicalObject {
         p.setTextSize(50);
         p.setAntiAlias(true);
         canvas.drawText(currentRounds + "", x, y, p);
+        // Draws the health bar
         p.setColor(Color.GREEN);
         int startY = (int) (getY() + getSY() - (getSY() * ((health * 1.0)/ INITIAL_HEALTH)));
         canvas.drawRect(getX() - 10, startY, getX(), getY() + getSY(), p);
+        // Draws the main ship
         p.setColor(Color.BLACK);
         super.drawCentered(canvas, p);
     }
 
-    void setCurrentRounds(int rnds) {currentRounds = rnds;};
-
+    void setCurrentRounds(int rnds) {currentRounds = rnds;}
 
     // TODO: add reload bar
 }

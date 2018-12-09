@@ -17,8 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-import java.io.Serializable;
-
 public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
@@ -34,9 +32,9 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        Intent i = getIntent();
-        Bundle b = i.getExtras();
-        boolean logout = b.getBoolean("logout");
+        Bundle b = getIntent().getExtras();
+        boolean logout = false;
+        if (b != null) logout = b.getBoolean("logout");
         if (logout) {
             currentUser = null;
         } else {
@@ -49,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Initializes the signup button
     private void initializeSignupButton() {
         Button signupButton = findViewById(R.id.signup_button);
         signupButton.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Initializes the login button
     private void initializeLoginButton() {
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -73,12 +73,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Attempts to either login or signup the user with the given username and password
     public void loginSignup(final String username, String password, final boolean login) {
         final TextView errorText = findViewById(R.id.error_text);
         if (username.equals("")) {
             errorText.setText("Username cannot be empty");
-        } else if (username.length() > 10) {
-            errorText.setText("Username must be less than 10 characters");
+        } else if (username.length() > 14) {
+            errorText.setText("Username must be less than 14 characters");
         } else if (password.equals("")) {
             errorText.setText("Password cannot be empty");
         } else {
@@ -103,7 +104,8 @@ public class LoginActivity extends AppCompatActivity {
                         returnName = username;
                         exitActivity();
                     } else {
-                        String error = task.getException().getMessage();
+                        String error = "Unknown error";
+                        if (task.getException() != null) error = task.getException().getMessage();
                         errorText.setText(error);
                     }
                 }
@@ -111,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Exits the login activity returning the current user id
     public void exitActivity() {
         Intent returnData = new Intent();
         Bundle b = new Bundle();
