@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "747215103297",
+    "firebase_url": "https://octosquidinvaders.firebaseio.com",
+    "project_id": "octosquidinvaders",
+    "storage_bucket": "octosquidinvaders.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747215103297:android:bf965455254e02a8",
+        "android_client_info": {
+          "package_name": "com.example.kbush.gravitysim"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747215103297-2e38c1k48qt2or9kbu8ktald7fe5epbk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kbush.gravitysim",
+            "certificate_hash": "3ac65c217f0a86e6c09dd80f90a658beeac74d32"
+          }
+        },
+        {
+          "client_id": "747215103297-flndivhkv5giisldtn1okbrcthldpgsc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtCO78e97xx5srU7D_EQTbCSgHNr3D23M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747215103297-flndivhkv5giisldtn1okbrcthldpgsc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
