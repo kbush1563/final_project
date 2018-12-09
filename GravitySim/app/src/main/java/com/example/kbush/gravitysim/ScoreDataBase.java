@@ -50,12 +50,16 @@ class ScoreDataBase {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d("DatabasePull", "DocumentSnapshot data: " + document.getData());
-                        highScore = Integer.parseInt(document.getString("score"));
+                        try {
+                            highScore = Integer.parseInt(document.getString("score"));
+                        } catch (Exception e) {
+                            highScore = 0;
+                        }
                     } else {
                         Log.d("DatabasePull", "No such document");
                         highScore = 0;
                     }
-                    String scoreValueText = uid + ": " + highScore;
+                    String scoreValueText = "BEST: " + highScore;
                     scoreText.setText(scoreValueText);
                 } else {
                     Log.d("DatabasePull", "get failed with ", task.getException());
@@ -86,7 +90,7 @@ class ScoreDataBase {
                         }
                     });
         }
-        String highScoreText = uid + ": " + highScore;
+        String highScoreText = "BEST: " + highScore;
         scoreText.setText(highScoreText);
     }
 
@@ -113,18 +117,11 @@ class ScoreDataBase {
         });
     }
 
-    void insertNewHighScore(int score, Context context, ListView givenView) {
-        HighScoreReference result = new HighScoreReference(uid, (score + ""));
-        int index = topScoreList.size();
-        if (index > 0 && score > topScoreList.get(index - 1).getScore()) {
-            while (index > 0 && score > topScoreList.get(index - 1).getScore()) {
-                index--;
-            }
-            topScoreList.add(index, result);
-            topScoreList.remove(topScoreList.size() - 1);
+    void updateHighScore(Context context, ListView givenView) {
+        if (topScoreList.size() == NUMBER_OF_HIGHSCORES) {
             setNewListData();
+            setHighscoreList(context, givenView);
         }
-        setHighscoreList(context, givenView);
     }
 
     private void setHighscoreList(Context context, ListView highScoreView) {
@@ -136,7 +133,6 @@ class ScoreDataBase {
         highScoreView.setAdapter(theAdaptor);
     }
 
-
     void insertScoreOnly(int score) {
         HighScoreReference result = new HighScoreReference(uid, (score + ""));
         int index = topScoreList.size();
@@ -146,6 +142,7 @@ class ScoreDataBase {
             }
             topScoreList.add(index, result);
             topScoreList.remove(topScoreList.size() - 1);
+            setNewListData();
         }
     }
 

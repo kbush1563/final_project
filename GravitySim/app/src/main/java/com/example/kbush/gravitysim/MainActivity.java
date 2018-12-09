@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         // Set potential new high score
         //scoreDb.updateUserScore(userScore, endingScore);
         ListView highScoreView = findViewById(R.id.list_view);
-        scoreDb.insertNewHighScore(endingScore, getApplicationContext(), highScoreView);
+        scoreDb.updateHighScore(getApplicationContext(), highScoreView);
 
         // Initialize variables
         started = false;
@@ -93,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
         final Button replay = findViewById(R.id.restart_button);
         final Button mainMenu = findViewById(R.id.main_menu_button);
         final LinearLayout gameOverScreen = findViewById(R.id.game_over_layout);
+        final TextView bestScoreText = findViewById(R.id.text_best_score);
         gameTicks = 0;
+        doOnce = true;
+
+        scoreDb.getUserScore(bestScoreText);
 
         replay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 setupMainScreen();
             }
         });
-        doOnce = true;
         // Setup game timer
         runnable = new Runnable() {
             @Override
@@ -135,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                     endingScore = gameBackend.getScore();
                     if (doOnce) {
                         scoreDb.insertScoreOnly(endingScore);
+                        scoreDb.updateUserScore(bestScoreText, endingScore);
                         doOnce = false;
                     }
                     // TODO: Handle updating scores everytime
