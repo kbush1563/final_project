@@ -248,7 +248,7 @@ class GameBackend {
     // SOUND FUNCTIONS #############################################################################
 
     // Toggles the sound settings based on the global settings class
-    private void invalidateSoundSettings() {
+    void invalidateSoundSettings() {
         killBackgroundSong();
         if (!Settings.musicOff) {
             bgSong = MediaPlayer.create(context, R.raw.super_dramatic);
@@ -263,6 +263,11 @@ class GameBackend {
             bgSong.stop();
             bgSong = null;
         }
+    }
+
+    void toggleBackgroundSong() {
+        if (bgSong.isPlaying()) bgSong.pause();
+        else bgSong.start();
     }
 
     void killSounds() {

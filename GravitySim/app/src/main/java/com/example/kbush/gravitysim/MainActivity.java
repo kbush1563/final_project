@@ -153,29 +153,45 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (!started) super.onBackPressed();
-        else {
-            startupMainfromGame();
-        }
+        if (started) pauseGame();
+        else super.onBackPressed();
     }
 
     @Override
     protected void onPause() {
-        if (started) {
-            startupMainfromGame();
-        }
+        if (started) pauseGame();
         super.onPause();
     }
 
-    void startupMainfromGame() {
-        gameBackend.killSounds();
-        stop();
-        setupMainScreen();
-    }
 
-    /*void pauseGame() {
-        LinearLayout settingsMenu = findViewById(R.id.)
-    }*/
+    void pauseGame() {
+        stop();
+        gameBackend.toggleBackgroundSong();
+
+        final LinearLayout settingsMenu = findViewById(R.id.menu_pause);
+        settingsMenu.setVisibility(View.VISIBLE);
+
+        Button mainMenu = findViewById(R.id.button_main_menu);
+        Button resume = findViewById(R.id.button_resume);
+
+        resume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settingsMenu.setVisibility(View.GONE);
+                gameBackend.toggleBackgroundSong();
+                start();
+            }
+        });
+
+        mainMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gameBackend.killBackgroundSong();
+                setupMainScreen();
+            }
+        });
+
+    }
 
     void initializeSettingsButton() {
         ImageButton settings = findViewById(R.id.button_settings);
