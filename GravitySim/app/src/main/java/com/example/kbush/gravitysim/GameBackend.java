@@ -9,6 +9,7 @@ import android.widget.TextView;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Set;
 
 class GameBackend {
     Context context;
@@ -23,7 +24,7 @@ class GameBackend {
     private SoundPool sfx;
 
     private int score, currentScore, spawnRate;
-    private int sfxDeadOcto, sfxGunshot, sfxOctoHit, sfxRockHit, sfxShipExplode;
+    private int sfxDeadOcto, sfxGunshot, sfxOctoHit, sfxRockHit, sfxShipExplode, sfxBackgoundSong;
     private boolean sfxOn, gameOver;
 
     private final static int NUMBER_OF_STARS = 10;
@@ -35,6 +36,8 @@ class GameBackend {
     GameBackend(GameView givenGameView, Context context) {
         this.context = context;
         graphics = givenGameView;
+
+        invalidateSoundSettings();
 
         player = new SpaceShip(Utils.getScreenWidth() / 2, Utils.getScreenHeight(), context);
         weapon = new Weapon(Type.BULLET, context);
@@ -56,22 +59,20 @@ class GameBackend {
         spawnRate = INITIAL_SPAWN_RATE;
         gameOver = false;
 
-        invalidateSoundSettings();
-
         sfx = new SoundPool(100, AudioManager.USE_DEFAULT_STREAM_TYPE, 0);
         sfxGunshot = sfx.load(context, R.raw.gunshot, 1);
         sfxDeadOcto = sfx.load(context, R.raw.dead_octo_1, 1);
         sfxOctoHit = sfx.load(context, R.raw.octo_hit_1, 1);
         sfxRockHit = sfx.load(context, R.raw.rock_hit_1, 1);
         sfxShipExplode = sfx.load(context, R.raw.ship_explode,1);
+        sfxBackgoundSong = sfx.load(context, R.raw.super_dramatic, 1);
     }
-
-    // TODO: Add best user score text
 
     // GAME UPDATE FUNCTIONS #######################################################################
 
     // Updates and runs collision physics for all objects
     boolean updateObjects() {
+
         // Update Stars
         for (PhysicalObject star: stars) {
             if (star.update()) star.setPosition(-123456, 0);
@@ -152,6 +153,7 @@ class GameBackend {
         if (!player.isAlive() && !gameOver) {
             destroyObject(Type.SHIP_GIB, player.getLoc(), 200);
             playSfx(sfxShipExplode);
+            killBackgroundSong();
             gameOver = true;
         }
         return player.isAlive();
@@ -247,16 +249,25 @@ class GameBackend {
 
     // Toggles the sound settings based on the global settings class
     private void invalidateSoundSettings() {
+        killBackgroundSong();
         if (!Settings.musicOff) {
             bgSong = MediaPlayer.create(context, R.raw.super_dramatic);
             bgSong.setLooping(true);
             bgSong.start();
-        } else killBackgroundSong(); //TODO: Fix background song
+        }
         sfxOn = !Settings.sfxOff;
     }
 
     void killBackgroundSong() {
-        if (bgSong != null) bgSong.stop();
+        if (bgSong != null) {
+            bgSong.stop();
+            bgSong = null;
+        }
+    }
+
+    void killSounds() {
+        killBackgroundSong();
+        sfxOn = false;
     }
 
     private void playSfx(int sfxId) {

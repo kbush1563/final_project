@@ -2,6 +2,7 @@ package com.example.kbush.gravitysim;
 
 import android.content.Intent;
 import android.graphics.Point;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -141,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                         scoreDb.updateUserScore(bestScoreText, endingScore);
                         doOnce = false;
                     }
-                    // TODO: Handle updating scores everytime
                 }
                 gameBackend.drawGraphics();
                 if (started) start();
@@ -150,6 +150,32 @@ public class MainActivity extends AppCompatActivity {
 
         start();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!started) super.onBackPressed();
+        else {
+            startupMainfromGame();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (started) {
+            startupMainfromGame();
+        }
+        super.onPause();
+    }
+
+    void startupMainfromGame() {
+        gameBackend.killSounds();
+        stop();
+        setupMainScreen();
+    }
+
+    /*void pauseGame() {
+        LinearLayout settingsMenu = findViewById(R.id.)
+    }*/
 
     void initializeSettingsButton() {
         ImageButton settings = findViewById(R.id.button_settings);

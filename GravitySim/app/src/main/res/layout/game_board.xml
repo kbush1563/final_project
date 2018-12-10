@@ -42,6 +42,58 @@
         app:layout_constraintTop_toBottomOf="@id/text_best_score" />
 
     <LinearLayout
+        android:id="@+id/menu_pause"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/title_pause"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="PAUSE"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="36sp" />
+
+        <Button
+            android:id="@+id/button_resume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="64dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="64dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_boarder"
+            android:foregroundGravity="center"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="RESUME"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:visibility="visible" />
+
+        <Button
+            android:id="@+id/button_main_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/button_boarder"
+            android:foregroundGravity="center"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Main Menu"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/game_over_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
