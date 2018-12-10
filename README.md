@@ -1,2 +1,3 @@
 # final_project
-Final Project for CS371
+Octosquid Invaders!
+by Kaitlyn Bush
